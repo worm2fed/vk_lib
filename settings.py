@@ -1,10 +1,6 @@
-api_v = '5.63'
-token = '516f77c8475208067be045a1ff54332ea7e259f4a6c87f001af11e7afee00bc3344028f716cf08a1eafef'
-count = 10000
-# city = 60 Kazan
-# city = 5470540 Innopolis
-city = 185
-# group = 17311245 Kazan
-# group = 39826117 Innopolis
-group = 115568756
-fields = 'uid,first_name,last_name,photo'
+api_v = 'API_VERSION'
+token = 'ACCESS_TOKEN'
+count = COUNT
+city = CITY_ID
+group = GROUP_ID
+fields = 'FIELDS'
