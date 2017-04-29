@@ -12,7 +12,13 @@ __author__ = 'Andrey Demidenko'
 __docformat__ = 'reStructuredText'
 
 
+import getopt
 import requests
+
+from tools import *
+
+
+title = 'Module for VK API access'
 
 
 class VkException(Exception):
@@ -28,16 +34,26 @@ class VkException(Exception):
 class VkApi():
 	""" Directly, class contains methods for VK API
 	"""
-	def __init__(self, *pargs):
+	def __init__(self, api_v, token, v=False):
 		""" Initialisation
+
+			:param api_v: VK API version
+			:param token: access token
+			:param v: verbose mode
     	"""
-		self.api_v, self.token = pargs
+		self.api_v = api_v
+		self.token = token
+		self.v = v
 		
 
 	def _get_request_url(self, method_name, parameters, access_token=False):
 		""" Generate request URL
+
+			:param method_name: name of method in VK API
+			:param parameters: string with parameters for request
+			:param access_token: is access token needed
     	"""
-		request_url = ('https://api.vk.com/method/{method_name}?{parameters}'
+		request_url = ('https://api.vk.com/method/{method_name}?{parameters}'\
 			'&v={api_v}').format(
 			method_name=method_name, api_v=self.api_v, parameters=parameters)
 
@@ -51,10 +67,16 @@ class VkApi():
 
 	def get_user_info(self, uid, fields=''):
 		""" Returns user/users profile info with `fields`
+
+			:param uid: user id
+			:param fields: fields wich are needed to get
 		"""
+		if self.v:
+			print('Collecting info about user ' + str(uid) + '...')
+
 		result = requests.get(self._get_request_url('users.get', \
 			'user_ids=%s&fields=%s' % (uid, fields))).json()
-		
+
 		if 'error' in result.keys():
 			raise VkException('Error message: %s Error code: %s' % \
 				(result['error']['error_msg'], result['error']['error_code']))
@@ -64,7 +86,12 @@ class VkApi():
 
 	def get_friends_list(self, uid):
 		""" Returns user's friend list
+
+			:param uid: user id to get firends list
 		"""
+		if self.v:
+			print('Collecting firend list of user ' + str(uid) + '...')
+
 		result = requests.get(self._get_request_url('friends.get', \
 			'user_id=%s' % uid)).json()
 
@@ -73,10 +100,17 @@ class VkApi():
 
 	def get_users_from_group(self, group, count, city=''):
 		""" Returns a `count` of users from `group` and `city`
+
+			:param group: group id to search in
+			:param count: nuber of users to get
+			:param city: city id to filter results
 		"""
 		result = list()
 		offset = 0
 		current = 0
+
+		if self.v:
+			print('Collecting users from group ' + str(group) + '...')
 
 		while current in range(count):
 			get_count = lambda: count if 1000 - count >= 0 else \
@@ -113,6 +147,9 @@ class VkApi():
 
 			:param code: two-letters country code ISO 3166-1
 		"""
+		if self.v:
+			print('Collecting countries...')
+
 		result = requests.get(self._get_request_url('database.getCountries', \
 			'need_all=1&code=%s' % code)).json()
 
@@ -121,7 +158,12 @@ class VkApi():
 
 	def get_regions(self, country):
 		""" Returns a country's regions list
+
+			:param country: country id to get regions
 		"""
+		if self.v:
+			print('Collecting regions of count ' + str(country) + '...')
+
 		result = requests.get(self._get_request_url('database.getRegions', \
 			'country_id=%s' % country)).json()
 
@@ -130,10 +172,19 @@ class VkApi():
 
 	def get_cities(self, country, region='', count=1000, get_all=False):
 		""" Returns a country's cities list
+
+			:param country: country id
+			:param region: region id
+			:param count: number of cities to get
+			:param get_all: te get all cities list
 		"""
 		result = list()
 		offset = 0
 		current = 0
+
+		if self.v:
+			print('Collecting cities from country ' + str(country) + '...')
+
 		while current in range(count):
 			get_count = lambda: count if 1000 - count >= 0 else \
 						count - current if count - current <= 1000 else \
@@ -153,3 +204,36 @@ class VkApi():
 				current += len(tmp)
 
 		return resul
+
+
+def help():
+	""" Print help
+	"""
+	print(title + '\n')
+	print('Usage:')
+	print('\t-v, --verbose\t\tEnable verbose mode')
+	print('\t-h, --help\t\tShow this help and exit')
+	print('\t-V, --version\t\tShow version info and exit')
+
+
+if __name__ == '__main__':
+	_verbose = False
+
+	try:
+		opts, args = getopt.getopt(sys.argv[1:], 'hvV', \
+			['help', 'verbose', 'version'])
+	except getopt.GetoptError as err:
+		quit((str(err) + '\n\nTry -h or --help for help'))
+	
+	for opt, arg in opts:
+		if opt in ('-h', '--help'):
+			help()
+			quit()		
+		elif opt in ('-V', '--version'):
+			print('vk_api module v' + __version__)
+			quit()
+		elif opt in ('-v', '--verbose'):
+			_verbose = True
+	else:
+		help()
+		quit()
