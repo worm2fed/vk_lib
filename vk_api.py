@@ -21,7 +21,7 @@ from tools import *
 
 
 class VkException(Exception):
-	""" Base class for errors in vk_api package.
+	""" Base class for errors in vk_api module.
 	""" 
 	def __init__(self, message):
 		self.message = message

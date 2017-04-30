@@ -1,5 +1,6 @@
 __pycache__/
 graphs/
+data/
 graph.xml
 new_graph.xml
 lab.sublime-project
