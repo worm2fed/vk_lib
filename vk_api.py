@@ -80,20 +80,32 @@ class VkApi():
 		return result['response']
 
 
-	def get_friends_list(self, uid):
+	def get_friends_list(self, uid, city=''):
 		""" Returns user's friend list
 
 			:param uid: user id to get firends list
+			:param city: city id to filter results
 		"""
+		result = list()
 		print('Collecting friends list of user ' + str(uid) + '...')
-		result = requests.get(self._get_request_url('friends.get', \
-			'user_id=%s' % uid)).json()
+		tmp = requests.get(self._get_request_url('friends.get', \
+			'user_id=%s&fields=city,photo' % uid)).json()
 
-		if 'error' in result.keys():
+		if 'error' in tmp.keys():
 			raise VkException('Error message: %s Error code: %s' % \
-				(result['error']['error_msg'], result['error']['error_code']))
+				(tmp['error']['error_msg'], tmp['error']['error_code']))
 
-		return result['response']['items']
+		tmp = tmp['response']['items']
+		# Check is user exactly in city
+		if city:
+			for i in tmp:
+				if 'city' in i:
+					if i['city']['id'] == city:
+						result.append(i)
+		else:
+			result += tmp
+
+		return result
 
 
 	def get_followers_list(self, uid, city=''):
@@ -137,7 +149,7 @@ class VkApi():
 
 		return result
 
-	
+
 	def get_users_from_group(self, group, count, city=''):
 		""" Returns a `count` of users from `group` and `city`
 
