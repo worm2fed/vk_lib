@@ -15,6 +15,7 @@ __docformat__ = 'reStructuredText'
 from glob import glob
 import pickle
 import time
+import json
 import sys
 import os
 
@@ -52,6 +53,17 @@ back = lambda: False
 stop = lambda: True
 # Get file extension
 extention = lambda f: os.path.splitext(f)[1][1:]
+
+
+def save_json(data, out):
+	""" Save json to file
+
+		:param data: data to save
+		:param out: path to save a data
+	"""
+	print('Saving json to file...')
+	with open(out, 'w') as f:
+		f.write(json.JSONEncoder().encode(data))
 
 
 def save_data(data, out):

@@ -82,7 +82,7 @@ class VkApi():
 	def get_friends_list(self, uid, city=''):
 		""" Returns user's friend list
 
-			:param uid: user id to get firends list
+			:param uid: user id to get friends list
 			:param city: city id to filter results
 		"""
 		result = list()
@@ -104,7 +104,7 @@ class VkApi():
 		else:
 			result += tmp
 
-		print('Found ' + str(len(result)) + ' firends of user ' + str(uid))
+		print('Found ' + str(len(result)) + ' friends of user ' + str(uid))
 
 		return result
 
