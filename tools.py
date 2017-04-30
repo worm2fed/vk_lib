@@ -12,9 +12,21 @@ __author__ = 'Andrey Demidenko'
 __docformat__ = 'reStructuredText'
 
 
+from glob import glob
+import pickle
 import time
 import sys
 import os
+
+
+class ToolsException(Exception):
+	""" Base class for errors in tools module.
+	""" 
+	def __init__(self, message):
+		self.message = message
+
+	def __str__(self):
+		return self.message	
 
 
 class LeadTime(object):
@@ -26,6 +38,7 @@ class LeadTime(object):
 
 	def __exit__(self, type, value, traceback):
 		print('Elapsed time: {:.3f} sec '.format(time.time() - self._startTime))
+
 
 # Switch verbose mode
 verbose = lambda v: open(os.devnull, "w") if v else sys.__stdout__
@@ -39,3 +52,28 @@ back = lambda: False
 stop = lambda: True
 # Get file extension
 extention = lambda f: os.path.splitext(f)[1][1:]
+
+
+def save_data(data, out):
+	""" Save data to file
+
+		:param data: data to save
+		:param out: path to save a data
+	"""
+	print('Saving data to file...')
+	with open(out, 'wb') as f:
+		pickle.dump(data, f)
+
+
+def load_data(file):
+	""" Save data to file
+
+		:param out: path to load a data
+	"""
+	print('Loading data from file...')
+	if glob(file):
+		with open(file, 'rb') as f:
+			return pickle.load(f)
+	else:
+		raise ToolsException('Error message: %s' % \
+					'File ' + str(file) + ' was not found')
