@@ -1,6 +1,9 @@
-api_v = 'API_VERSION'
-token = 'ACCESS_TOKEN'
-count = COUNT
-city = CITY_ID
-group = GROUP_ID
-fields = 'FIELDS'
+# vk_api
+app_id 	= APP_ID
+api_v 	= 'API_VERSION'
+token 	= 'ACCESS_TOKEN'
+
+count 	= COUNT
+city 	= CITY_ID
+group 	= GROUP_ID
+fields 	= 'FIELDS'
