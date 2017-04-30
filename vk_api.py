@@ -7,18 +7,17 @@
 """ This module allows to use VK API more comfortable.
 """
 
-__version__ = '1.0'
-__author__ = 'Andrey Demidenko'
-__docformat__ = 'reStructuredText'
+__version__ 	= '1.0'
+__author__ 		= 'Andrey Demidenko'
+__docformat__ 	= 'reStructuredText'
+
+title = 'Module for VK API access'
 
 
 import getopt
 import requests
 
 from tools import *
-
-
-title = 'Module for VK API access'
 
 
 class VkException(Exception):
@@ -104,6 +103,8 @@ class VkApi():
 						result.append(i)
 		else:
 			result += tmp
+
+		print('Found ' + str(len(result)) + ' firends of user ' + str(uid))
 
 		return result
 
