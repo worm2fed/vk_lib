@@ -53,6 +53,12 @@ back = lambda: False
 stop = lambda: True
 # Get file extension
 extention = lambda f: os.path.splitext(f)[1][1:]
+# Get ids
+get_ids = lambda lst: [u['id'] for u in lst]
+# Split list to parts by 25 elements
+make_parts = lambda lst, n=25: (lst[i:i + n] for i in iter(range(0, len(lst), n)))
+# Make targets for vk_api
+make_targets = lambda lst: ','.join(str(id) for id in lst)
 
 
 def save_json(data, out):

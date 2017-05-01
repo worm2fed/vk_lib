@@ -33,13 +33,15 @@ class VkException(Exception):
 class VkApi():
 	""" Directly, class contains methods for VK API
 	"""
-	def __init__(self, api_v, token):
+	def __init__(self, api_v, app_id, token):
 		""" Initialisation
 
 			:param api_v: VK API version
+			:param api_id: VK app id
 			:param token: access token
     	"""
 		self.api_v = api_v
+		self.app_id = app_id
 		self.token = token
 		
 
@@ -79,7 +81,7 @@ class VkApi():
 		return result['response']
 
 
-	def get_friends_list(self, uid, city=''):
+	def get_friends(self, uid, city=''):
 		""" Returns user's friend list
 
 			:param uid: user id to get friends list
@@ -93,8 +95,8 @@ class VkApi():
 		if 'error' in tmp.keys():
 			raise VkException('Error message: %s Error code: %s' % \
 				(tmp['error']['error_msg'], tmp['error']['error_code']))
-
 		tmp = tmp['response']['items']
+			
 		# Check is user exactly in city
 		if city:
 			for i in tmp:
@@ -109,7 +111,47 @@ class VkApi():
 		return result
 
 
-	def get_followers_list(self, uid, city=''):
+	def get_friends_list(self, uid, city=''):
+		""" Returns user's friend list
+
+			:param uid: list of users id to get friends
+			:param city: city id to filter results
+		"""
+		result = list()
+		print('Collecting friends list of users...')
+		if type(uid) is not list:
+			raise VkException('Error message: %s' % \
+					'uid should be <class \'list\'>')
+
+		# разбиваем список на части - по 25 в каждой
+		for p in make_parts(uid):
+			tmp = requests.get(self._get_request_url('execute.getFriends', \
+				'targets=%s' % make_targets(p), True)).json()
+
+			if 'error' in tmp.keys():
+				raise VkException('Error message: %s Error code: %s' % \
+					(tmp['error']['error_msg'], tmp['error']['error_code']))
+			tmp = tmp['response']
+				
+			for i, id in enumerate(p):
+				# Check is user exactly in city
+				if city:
+					friends = []
+					for u in tmp[i]['items']:
+						if 'city' in u:
+							if u['city']['id'] == city:
+								friends.append(u)
+				else:
+					friends = tmp[i]['items']
+						
+				result.append({ id: friends })
+				print('Found ' + str(len(friends)) + ' friends of user ' + \
+					str(id))
+
+		return result
+
+
+	def get_followers(self, uid, city=''):
 		""" Returns user's followers list
 
 			:param uid: user id to get followers list
