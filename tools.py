@@ -41,16 +41,6 @@ class LeadTime(object):
 		print('Elapsed time: {:.3f} sec '.format(time.time() - self._startTime))
 
 
-# Switch verbose mode
-verbose = lambda v: open(os.devnull, "w") if v else sys.__stdout__
-# sys.stdout = verbose(v)
-# Method to clean up a console
-clear = lambda: os.system('cls' if os.name=='nt' else 'clear')
-# Method to quit
-quit = lambda mes='': sys.exit(mes)
-# Method to go back and stop function
-back = lambda: False
-stop = lambda: True
 # Get file extension
 extention = lambda f: os.path.splitext(f)[1][1:]
 # Get ids

@@ -11,8 +11,6 @@ __version__ 	= '1.0'
 __author__ 		= 'Andrey Demidenko'
 __docformat__ 	= 'reStructuredText'
 
-title = 'Module for VK API access'
-
 
 import getopt
 import requests
@@ -295,35 +293,4 @@ class VkApi():
 			if not get_all:
 				current += len(tmp)
 
-		return resul
-
-
-def help():
-	""" Print help
-	"""
-	print(title + '\n')
-	print('Usage:')
-	print('\t-v, --verbose\t\tEnable verbose mode')
-	print('\t-h, --help\t\tShow this help and exit')
-	print('\t-V, --version\t\tShow version info and exit')
-
-
-if __name__ == '__main__':
-	try:
-		opts, args = getopt.getopt(sys.argv[1:], 'hvV', \
-			['help', 'verbose', 'version'])
-	except getopt.GetoptError as err:
-		quit((str(err) + '\n\nTry -h or --help for help'))
-	
-	for opt, arg in opts:
-		if opt in ('-h', '--help'):
-			help()
-			quit()		
-		elif opt in ('-V', '--version'):
-			print('vk_api module v' + __version__)
-			quit()
-		elif opt in ('-v', '--verbose'):
-			verbose(True)
-	else:
-		help()
-		quit()
+		return result
