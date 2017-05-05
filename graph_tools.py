@@ -13,8 +13,9 @@ __docformat__ 	= 'reStructuredText'
 
 
 from glob import glob
+import collections
 
-from numpy import *
+import numpy as np
 from graph_tool.all import *
 
 from tools import *
@@ -143,10 +144,10 @@ class GraphTools():
 			count = int(edge_num * (count / 100)) if percent else count
 
 			for i in range(count):
-				index = random.randint(low=0, high=(edges.shape[0] - 1))
+				index = np.random.randint(low=0, high=(edges.shape[0] - 1))
 
 				while index in deleted:
-					index = random.randint(low=0, high=(edges.shape[0] - 1))
+					index = np.random.randint(low=0, high=(edges.shape[0] - 1))
 
 				self.graph.remove_edge(self.graph.edge(edges[index][0], \
 					edges[index][1]))
@@ -198,7 +199,7 @@ class GraphTools():
 			with LeadTime() as t:
 				# graph_draw(self.graph, pos=layout, output_size=size, output=out)
 				deg = self.graph.degree_property_map('in')
-				deg.a = 4 * (sqrt(deg.a) * 0.5 + 0.4)
+				deg.a = 4 * (np.sqrt(deg.a) * 0.5 + 0.4)
 				ebet = betweenness(self.graph)[1]
 				ebet.a /= ebet.a.max() / 10.
 				eorder = ebet.copy()
@@ -207,7 +208,7 @@ class GraphTools():
 				control = self.graph.new_edge_property('vector<double>')
 
 				for e in self.graph.edges():
-					d = sqrt(sum((pos[e.source()].a - pos[e.target()].a) ** 2))
+					d = np.sqrt(np.sum((pos[e.source()].a - pos[e.target()].a) ** 2))
 					control[e] = [0.3, d, 0.7, d]
 
 				graph_draw(self.graph, pos=pos, vertex_size=deg, \
@@ -257,6 +258,63 @@ class GraphTools():
 
 			:return: dict with vertices as keys and neighbours list as values
 		"""
-		return { v: sort(self.graph.get_out_neighbours(v)).tolist() \
+		return { v: np.sort(self.graph.get_out_neighbours(v)).tolist() \
 			for v in self.get_vertices_list() }
 
+
+	def get_common_neighbours(self):
+		""" Find common neighbours
+			
+			:return: dict Counter with common neighbours for each vertex
+		"""
+		common_neighbours = collections.Counter()
+		neighbours = self.get_neighbours()
+		degrees = self.get_degrees_list()
+
+		# Go through all vertices
+		for v in self.get_vertices_list():
+			i = 1
+			for n1 in neighbours[v]:
+				for n2 in neighbours[v][i:]:
+					common_neighbours[(n1, n2)] += 1
+				i += 1
+
+		return common_neighbours
+
+
+	def get_jaccard(self):
+		""" Calculate Jaccard's Coefficient
+			
+			:return: dict Counter with Jaccard's coefficient for each vertex
+		"""
+		jaccard_coef = collections.Counter()
+		common_neighbours = self.get_common_neighbours()
+		degrees = self.get_degrees_list()
+
+		# Go through all vertices
+		for common_key in common_neighbours.elements():
+			jaccard_coef[common_key] = common_neighbours[common_key] / \
+				(degrees[common_key[0]] + degrees[common_key[1]] - \
+					common_neighbours[common_key])
+
+		return jaccard_coef
+
+
+	def get_adamic_adar(self):
+		""" Calculate Adamic/Adar Coefficient
+			
+			:return: dict Counter with Adamic/Adar coefficient for each vertex
+		"""
+		adamic_adar = collections.Counter()
+		neighbours = self.get_neighbours()
+		degrees = self.get_degrees_list()
+
+		# Go through all vertices
+		for v in self.get_vertices_list():
+			i = 1
+			for n1 in neighbours[v]:
+				for n2 in neighbours[v][i:]:
+					adamic_adar[(n1, n2)] += 1 / np.log(degrees[v])
+				i += 1
+
+		return adamic_adar
