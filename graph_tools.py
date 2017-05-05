@@ -7,12 +7,11 @@
 """ Module created for easy access to graph tools
 """
 
-__version__ = '1.0'
-__author__ = 'Andrey Demidenko'
-__docformat__ = 'reStructuredText'
+__version__ 	= '1.0'
+__author__ 		= 'Andrey Demidenko'
+__docformat__ 	= 'reStructuredText'
 
 
-import getopt
 from glob import glob
 
 from numpy import *
@@ -36,18 +35,17 @@ class GraphTools():
 	"""
 	def __init__(self):
 		""" Initialisation
-
-    		:param v: verbose mode
 		"""
 		self.graph = None
 		self.ext = ['gt', 'graphml', 'xml', 'dot', 'gml']
 
 
-	def load(self, file, ext='auto'):
+	def load(self, file, ext='auto', local=True):
 		""" Load graph from file
 
 			:param file: path to file with graph
 			:param ext: extention of file
+			:param local: load graph localy or to return
 		"""
 		print('Loading graph ' + str(file) + '...')
 		if glob(file):
@@ -55,15 +53,20 @@ class GraphTools():
 				ext = extention(file)
 
 			if ext in self.ext:
-				self.graph = load_graph(file)
+				graph = load_graph(file)
 			elif ext == 'csv':
-				self.graph = load_graph_from_csv(file)
+				graph = load_graph_from_csv(file)
 			else:
 				raise GraphException('Error message: %s' % \
 					'Unknown extention ' + str(ext))
 			
-			print('Vertices: ' + str(self.graph.num_vertices()) + \
-					' Edges: ' + str(self.graph.num_edges()))
+			print('Vertices: ' + str(graph.num_vertices()) + \
+					' Edges: ' + str(graph.num_edges()))
+
+			if local:
+				self.graph = graph
+			else:
+				return graph
 		else:
 			raise GraphException('Error message: %s' % \
 					'Graph ' + str(ext) + ' was not found')
@@ -214,3 +217,46 @@ class GraphTools():
 		else:
 			raise GraphException('Error message: %s' % \
 					'Graph ' + str(ext) + ' is not defined')
+
+
+	def get_edges_list(self):
+		""" Get edges list
+		"""
+		return self.graph.get_edges().tolist()
+
+
+	def get_vertices_list(self):
+		""" Get edges list
+		"""
+		return self.graph.get_vertices().tolist()
+
+
+	def get_degrees_list(self):
+		""" Get degrees list
+
+			:return: ndarray with degrees of vertex list
+		"""
+		return self.graph.get_out_degrees(self.get_vertices_list())
+
+
+	def remove_same_edges(self, file):
+		""" Remove edges from graph in `file` which are in both local and 
+		external graphs
+
+			:param file: path to another graph
+		"""
+		graph = self.load(file, local=False)
+		for e in self.graph.edges():
+			graph.remove_edge(graph.edge(e.source(), e.target()))
+
+		return dict(enumerate(map(set, graph.get_edges()[:,:2])))
+
+
+	def get_neighbours(self):
+		""" Get neighbours dict
+
+			:return: dict with vertices as keys and neighbours list as values
+		"""
+		return { v: sort(self.graph.get_out_neighbours(v)).tolist() \
+			for v in self.get_vertices_list() }
+
