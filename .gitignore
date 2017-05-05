@@ -3,6 +3,7 @@ graph/
 graph_drawing/
 graph_json/
 data/
+*.bcp
 settings.py
 test.py
 main.py
