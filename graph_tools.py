@@ -12,9 +12,6 @@ __author__ = 'Andrey Demidenko'
 __docformat__ = 'reStructuredText'
 
 
-title = 'Module for working with graphs'
-
-
 import getopt
 from glob import glob
 
@@ -185,36 +182,35 @@ class GraphTools():
 		save_json(js, file)
 
 
-	def draw(self, size=(1920, 1080), file='graph.png', layout=''):
+	def draw(self, size=(1920, 1080), out='graph.pdf', layout=''):
 		""" Draw graph
 
 			:param size: tupple with image size
-			:param file: path to save an image
+			:param out: path to save an image
 			:param layout: layout for graph drawing
-			arf_layout(graph, max_iter=0)
+				arf_layout(graph, max_iter=0)
 		"""
-		with LeadTime() as t:
-			deg = self.graph.degree_property_map('in')
-			deg.a = 4 * (sqrt(deg.a) * 0.5 + 0.4)
-			ebet = betweenness(self.graph)[1]
-			ebet.a /= ebet.a.max() / 10.
-			eorder = ebet.copy()
-			eorder.a *= -1
-			pos = sfdp_layout(self.graph)
-			control = self.graph.new_edge_property('vector<double>')
+		print('Drawing graph...')
+		if self.graph is not None:
+			with LeadTime() as t:
+				# graph_draw(self.graph, pos=layout, output_size=size, output=out)
+				deg = self.graph.degree_property_map('in')
+				deg.a = 4 * (sqrt(deg.a) * 0.5 + 0.4)
+				ebet = betweenness(self.graph)[1]
+				ebet.a /= ebet.a.max() / 10.
+				eorder = ebet.copy()
+				eorder.a *= -1
+				pos = sfdp_layout(self.graph)
+				control = self.graph.new_edge_property('vector<double>')
 
-			for e in self.graph.edges():
-				d = sqrt(sum((pos[e.source()].a - pos[e.target()].a) ** 2))
-				control[e] = [0.3, d, 0.7, d]
+				for e in self.graph.edges():
+					d = sqrt(sum((pos[e.source()].a - pos[e.target()].a) ** 2))
+					control[e] = [0.3, d, 0.7, d]
 
-			graph_draw(self.graph, pos=pos, vertex_size=deg, \
-				vertex_fill_color=deg, vorder=deg, edge_color=ebet, \
-				eorder=eorder, edge_pen_width=ebet, edge_control_points=control, \
-				output='graph.pdf')
-		# print('Drawing graph...')
-		# if self.graph is not None:
-		# 	with LeadTime() as t:
-		# 		graph_draw(self.graph, pos=layout, output_size=size, output=file)
-		# else:
-		# 	raise GraphException('Error message: %s' % \
-		# 			'Graph ' + str(ext) + ' is not defined')
+				graph_draw(self.graph, pos=pos, vertex_size=deg, \
+					vertex_fill_color=deg, vorder=deg, edge_color=ebet, \
+					eorder=eorder, edge_pen_width=ebet, edge_control_points=control, \
+					output=out)
+		else:
+			raise GraphException('Error message: %s' % \
+					'Graph ' + str(ext) + ' is not defined')
