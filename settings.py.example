@@ -1,3 +1,9 @@
+# default paths
+data_path = ''
+graph_path = ''
+graph_json_path = ''
+graph_drawing_path = ''
+
 # vk_api
 app_id 	= APP_ID
 api_v 	= 'API_VERSION'

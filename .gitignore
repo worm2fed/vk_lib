@@ -1,7 +1,7 @@
 __pycache__/
-graphs/
-graphs_drawing/
-graphs_json/
+graph/
+graph_drawing/
+graph_json/
 data/
 settings.py
 test.py
