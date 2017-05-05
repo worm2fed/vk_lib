@@ -1,5 +1,7 @@
 __pycache__/
 graphs/
+graphs_drawing/
+graphs_json/
 data/
 lab.sublime-project
 lab.sublime-workspace
