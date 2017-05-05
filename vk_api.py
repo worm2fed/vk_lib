@@ -12,7 +12,6 @@ __author__ 		= 'Andrey Demidenko'
 __docformat__ 	= 'reStructuredText'
 
 
-import getopt
 import requests
 
 from tools import *
