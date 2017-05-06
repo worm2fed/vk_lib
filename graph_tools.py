@@ -217,7 +217,7 @@ class GraphTools():
 		return self.graph.get_out_degrees(self.get_vertices_list())
 
 
-	def remove_same_edges(self, file):
+	def get_needed_edges(self, file):
 		""" Remove edges from graph in `file` which are in both local and 
 		external graphs
 
