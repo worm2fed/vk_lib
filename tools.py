@@ -42,13 +42,14 @@ class LeadTime(object):
 
 
 # Get file extension
-extention = lambda f: os.path.splitext(f)[1][1:]
+extention 		= lambda f: os.path.splitext(f)[1][1:]
 # Get ids
-get_ids = lambda lst: [u['id'] for u in lst]
+get_ids 		= lambda lst: [u['id'] for u in lst]
 # Split list to parts by 25 elements
-make_parts = lambda lst, n=25: (lst[i:i + n] for i in iter(range(0, len(lst), n)))
+make_parts 		= lambda lst, n=25: (lst[i:i + n] \
+	for i in iter(range(0, len(lst), n)))
 # Make targets for vk_api
-make_targets = lambda lst: ','.join(str(id) for id in lst)
+make_targets 	= lambda lst: ','.join(str(id) for id in lst)
 
 
 def save_json(data, out):
@@ -57,7 +58,6 @@ def save_json(data, out):
 		:param data: data to save
 		:param out: path to save a data
 	"""
-	print('Saving json to file...')
 	with open(out, 'w') as f:
 		f.write(json.JSONEncoder().encode(data))
 
@@ -68,7 +68,6 @@ def save_data(data, out):
 		:param data: data to save
 		:param out: path to save a data
 	"""
-	print('Saving data to file...')
 	with open(out, 'wb') as f:
 		pickle.dump(data, f)
 
@@ -78,10 +77,9 @@ def load_data(file):
 
 		:param out: path to load a data
 	"""
-	print('Loading data from file...')
 	if glob(file):
 		with open(file, 'rb') as f:
 			return pickle.load(f)
 	else:
 		raise ToolsException('Error message: %s' % \
-					'File ' + str(file) + ' was not found')
+			'File ' + str(file) + ' was not found')

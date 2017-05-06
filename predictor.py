@@ -42,21 +42,13 @@ class Predictor():
 			:return: if `check_edges` is empty returns dict with edges, 
 		otherwise dict with hits
 		"""
-		predicted_edges = dict(enumerate(map(lambda x: set(x[0]), \
-			coef.most_common(threshold))))
-
 		if check_edges is not None:
 			if isinstance(check_edges, dict):
-				hits = dict()
-				i = 0
-				for e in check_edges.values():
-					if e in predicted_edges.values():
-						hits[i] = e
-						i += 1
-
-				return hits
+				return dict(enumerate(e for e in check_edges.values() \
+					if e in predicted_edges.values()))
 			else:
 				raise PredictorException('Error message: %s' % \
-					'check_edges should be dict')
+					'check_edges should be <class \'dict\'>')
 		else:
-			return predicted_edges
+			return dict(enumerate(map(lambda x: set(x[0]), \
+				coef.most_common(threshold))))

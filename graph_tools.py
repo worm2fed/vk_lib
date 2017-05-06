@@ -37,8 +37,8 @@ class GraphTools():
 	def __init__(self):
 		""" Initialisation
 		"""
-		self.graph = None
-		self.ext = ['gt', 'graphml', 'xml', 'dot', 'gml']
+		self.graph 	= None
+		self.ext 	= ['gt', 'graphml', 'xml', 'dot', 'gml']
 
 
 	def load(self, file, ext='auto', local=True):
@@ -48,7 +48,6 @@ class GraphTools():
 			:param ext: extention of file
 			:param local: load graph localy or to return
 		"""
-		print('Loading graph ' + str(file) + '...')
 		if glob(file):
 			if ext == 'auto':
 				ext = extention(file)
@@ -60,9 +59,6 @@ class GraphTools():
 			else:
 				raise GraphException('Error message: %s' % \
 					'Unknown extention ' + str(ext))
-			
-			print('Vertices: ' + str(graph.num_vertices()) + \
-					' Edges: ' + str(graph.num_edges()))
 
 			if local:
 				self.graph = graph
@@ -78,7 +74,6 @@ class GraphTools():
 
 			:param out: path to save a graph
 		"""
-		print('Saving to file...')
 		if self.graph is not None:
 			self.graph.save(out)
 		else:
@@ -91,42 +86,35 @@ class GraphTools():
 			
 			:param data: list with user ids and other info
 		"""
-		print('Building graph...')
 		self.graph = Graph(directed=False)
 
+		# Add properties (additional info about vertex)
 		for k in data[0].keys():
-			print('Found property ' + str(k))
-			if k == 'friends' or k == 'city': 
-				print('Skipping')
-				continue
+			if k == 'friends' or k == 'city': continue
 			self.graph.vp[k] = self.graph.new_vp('string')
 
-		# Dictionaries for indexing vertecies and edges
-		id_to_vertex = dict()
-		used = set()
+		# Dictionary and set for indexing vertecies and edges
+		id_to_vertex 	= {}
+		used 			= set()
 			
 		# Add vertices and its data
-		print('Adding vertices and its data to graph...')
 		for u in data:
 			v = self.graph.add_vertex()
 			id_to_vertex[u['id']] = v
 
 			for k in data[0].keys():
-				for k in data[0].keys():
-					if k == 'friends' or k == 'city': continue
-					self.graph.vp[k][v] = u[k]
+				if k == 'friends' or k == 'city': continue
+				self.graph.vp[k][v] = u[k]
 
 		# Add edges
-		print('Adding edges to graph...')
 		for u in data:
 			used.add(u['id'])
 			# Check is u have a friend in this data
-			for f in u['friends']:
-				if (f['id'] not in used) and (f['id'] in id_to_vertex):
-					self.graph.add_edge(id_to_vertex[u['id']], id_to_vertex[f['id']])
-
-		print('Vertices: ' + str(self.graph.num_vertices()) + \
-					' Edges: ' + str(self.graph.num_edges()))
+			if 'friends' in u:
+				for f in u['friends']:
+					if (f['id'] not in used) and (f['id'] in id_to_vertex):
+						self.graph.add_edge(id_to_vertex[u['id']], \
+							id_to_vertex[f['id']])
 
 
 	def delete_random_edges(self, count, percent=True):
@@ -135,13 +123,11 @@ class GraphTools():
 			:param count: number of edges to delete
 			:param percent: count in items or percents
 		"""
-		print('Deleting ' + (str(count) + '%' if percent else str(count)) + \
-			' edges')
 		if self.graph is not None:
-			edge_num = self.graph.num_edges()
-			edges = self.graph.get_edges()
-			deleted = []
-			count = int(edge_num * (count / 100)) if percent else count
+			edge_num 	= self.graph.num_edges()
+			edges 		= self.graph.get_edges()
+			deleted 	= []
+			count 		= int(edge_num * (count / 100)) if percent else count
 
 			for i in range(count):
 				index = np.random.randint(low=0, high=(edges.shape[0] - 1))
@@ -152,8 +138,6 @@ class GraphTools():
 				self.graph.remove_edge(self.graph.edge(edges[index][0], \
 					edges[index][1]))
 				deleted.append(index)
-			else:
-				print(str(len(deleted)) + ' edges was successfuly deleted')
 		else:
 			raise GraphException('Error message: %s' % \
 					'Graph is not defined')
@@ -166,18 +150,12 @@ class GraphTools():
 		"""
 		js = { 'nodes': [], 'links': [] }
 		# Converting nodes
-		print('Converting vertices and its data...')
 		for v in self.graph.vertices():
-			info = dict()
-
-			for vp in self.graph.vp.keys():
-				info[vp] = self.graph.vp[vp][v]
-
+			info = { vp: self.graph.vp[vp][v] for vp in self.graph.vp.keys() }
 			info['group'] = 1
 			js['nodes'].append(info)
 
 		# Converting edges
-		print('Converting edges...')
 		for e in self.graph.edges():
 			js['links'].append({ 'source': str(e.source()), \
 				'target': str(e.target()), \
@@ -185,7 +163,7 @@ class GraphTools():
 
 		save_json(js, file)
 
-
+	# TODO
 	def draw(self, size=(1920, 1080), out='graph.pdf', layout=''):
 		""" Draw graph
 
@@ -194,7 +172,6 @@ class GraphTools():
 			:param layout: layout for graph drawing
 				arf_layout(graph, max_iter=0)
 		"""
-		print('Drawing graph...')
 		if self.graph is not None:
 			with LeadTime() as t:
 				# graph_draw(self.graph, pos=layout, output_size=size, output=out)
@@ -267,9 +244,9 @@ class GraphTools():
 			
 			:return: dict Counter with common neighbours for each vertex
 		"""
-		common_neighbours = collections.Counter()
-		neighbours = self.get_neighbours()
-		degrees = self.get_degrees_list()
+		common_neighbours 	= collections.Counter()
+		neighbours 			= self.get_neighbours()
+		degrees 			= self.get_degrees_list()
 
 		# Go through all vertices
 		for v in self.get_vertices_list():
@@ -287,9 +264,9 @@ class GraphTools():
 			
 			:return: dict Counter with Jaccard's coefficient for each vertex
 		"""
-		jaccard_coef = collections.Counter()
-		common_neighbours = self.get_common_neighbours()
-		degrees = self.get_degrees_list()
+		jaccard_coef 		= collections.Counter()
+		common_neighbours 	= self.get_common_neighbours()
+		degrees 			= self.get_degrees_list()
 
 		# Go through all vertices
 		for common_key in common_neighbours.elements():
@@ -305,9 +282,9 @@ class GraphTools():
 			
 			:return: dict Counter with Adamic/Adar coefficient for each vertex
 		"""
-		adamic_adar = collections.Counter()
-		neighbours = self.get_neighbours()
-		degrees = self.get_degrees_list()
+		adamic_adar 	= collections.Counter()
+		neighbours 		= self.get_neighbours()
+		degrees 		= self.get_degrees_list()
 
 		# Go through all vertices
 		for v in self.get_vertices_list():

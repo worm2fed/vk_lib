@@ -67,7 +67,6 @@ class VkApi():
 			:param uid: user id
 			:param fields: fields wich are needed to get
 		"""
-		print('Collecting info about user ' + str(uid) + '...')
 		result = requests.get(self._get_request_url('users.get', \
 			'user_ids=%s&fields=%s' % (uid, fields))).json()
 
@@ -84,8 +83,7 @@ class VkApi():
 			:param uid: user id to get friends list
 			:param city: city id to filter results
 		"""
-		result = list()
-		print('Collecting friends list of user ' + str(uid) + '...')
+		result = []
 		tmp = requests.get(self._get_request_url('friends.get', \
 			'user_id=%s&fields=city,photo' % uid)).json()
 
@@ -103,8 +101,6 @@ class VkApi():
 		else:
 			result += tmp
 
-		print('Found ' + str(len(result)) + ' friends of user ' + str(uid))
-
 		return result
 
 
@@ -114,8 +110,7 @@ class VkApi():
 			:param uid: list of users id to get friends
 			:param city: city id to filter results
 		"""
-		result = list()
-		print('Collecting friends list of users...')
+		result = []
 		if type(uid) is not list:
 			raise VkException('Error message: %s' % \
 					'uid should be <class \'list\'>')
@@ -142,8 +137,6 @@ class VkApi():
 					friends = tmp[i]['items']
 						
 				result.append({ id: friends })
-				print('Found ' + str(len(friends)) + ' friends of user ' + \
-					str(id))
 
 		return result
 
@@ -154,16 +147,14 @@ class VkApi():
 			:param uid: user id to get followers list
 			:param city: city id to filter results
 		"""
-		result = list()
-		offset = 0
+		result 	= []
+		offset 	= 0
 		current = 0
 
-		print('Collecting followers list of user ' + str(uid) + '...')
 		while True:
 			tmp = requests.get(self._get_request_url('users.getFollowers', \
 				'user_id=%s&fields=city,photo&count=%s&offset=%s' % (uid, \
-					1000, offset), access_token=True))\
-			.json()
+					1000, offset), access_token=True)).json()
 
 			if 'error' in tmp.keys():
 				raise VkException('Error message: %s Error code: %s' % \
@@ -182,10 +173,8 @@ class VkApi():
 							result.append(i)
 							current += 1
 			else:
-				result += tmp
+				result 	+= tmp
 				current += len(tmp)
-
-		print('Found ' + str(len(result)) + ' followers of user ' + str(uid))
 
 		return result
 
@@ -197,19 +186,17 @@ class VkApi():
 			:param count: nuber of users to get
 			:param city: city id to filter results
 		"""
-		result = list()
-		offset = 0
+		result 	= []
+		offset 	= 0
 		current = 0
 
-		print('Collecting users from group ' + str(group) + '...')
 		while current in range(count):
 			get_count = lambda: count if 1000 - count >= 0 else \
 						count - current if count - current <= 1000 else \
 						1000
 			tmp = requests.get(self._get_request_url('groups.getMembers', \
 				'group_id=%s&fields=city,photo&count=%s&offset=%s' % (group, \
-					get_count(), offset), access_token=True))\
-			.json()
+					get_count(), offset), access_token=True)).json()
 
 			if 'error' in tmp.keys():
 				raise VkException('Error message: %s Error code: %s' % \
@@ -242,7 +229,6 @@ class VkApi():
 
 			:param code: two-letters country code ISO 3166-1
 		"""
-		print('Collecting countries...')
 		result = requests.get(self._get_request_url('database.getCountries', \
 			'need_all=1&code=%s' % code)).json()
 
@@ -254,7 +240,6 @@ class VkApi():
 
 			:param country: country id to get regions
 		"""
-		print('Collecting regions of count ' + str(country) + '...')
 		result = requests.get(self._get_request_url('database.getRegions', \
 			'country_id=%s' % country)).json()
 
@@ -269,11 +254,10 @@ class VkApi():
 			:param count: number of cities to get
 			:param get_all: te get all cities list
 		"""
-		result = list()
-		offset = 0
+		result 	= []
+		offset 	= 0
 		current = 0
 
-		print('Collecting cities from country ' + str(country) + '...')
 		while current in range(count):
 			get_count = lambda: count if 1000 - count >= 0 else \
 						count - current if count - current <= 1000 else \
