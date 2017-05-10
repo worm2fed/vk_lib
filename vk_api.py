@@ -37,9 +37,9 @@ class VkApi():
 			:param api_id: VK app id
 			:param token: access token
     	"""
-		self.api_v = api_v
+		self.api_v 	= api_v
 		self.app_id = app_id
-		self.token = token
+		self.token 	= token
 		
 
 	def _get_request_url(self, method_name, parameters, access_token=False):
@@ -59,6 +59,18 @@ class VkApi():
 				token=self.token)
 
 		return request_url
+
+
+	def get_access_token_url(self):
+		""" Returns url to get access token for current session
+
+			**Note**
+			When you are trying to use your previous access token from another
+			IP adress you likely get an error. This function allows you to get 
+			another access token
+		"""
+		return "https://oauth.vk.com/authorize?client_id={app_id}&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=friends&response_type=token&v={api_v}".format(
+			app_id=self.app_id, api_v=self.api_v)
 
 
 	def get_user_info(self, uid, fields=''):
