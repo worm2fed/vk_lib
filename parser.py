@@ -4,7 +4,7 @@
 # @Author  : Andrey Demidenko (worm2fed@mail.ru)
 # @Version : 1.0
 
-""" 
+""" Module implements parsing tools
 
 """ 
 
@@ -30,9 +30,9 @@ class ParserException(Exception):
 
 
 class Parser(HTMLParser):
-	""" Class for parsing HTML pages, in our case - vk.com/catalog.php
+	""" Class for parsing HTML pages
     """
-    def __init__(self, site, *args, **kwargs):
+	def __init__(self, site):
 		""" Initialisation
 			
 			:param site: site name
@@ -42,19 +42,43 @@ class Parser(HTMLParser):
 		self.links 	= []
 		self.site 	= site
 		# Call parent's __init__
-		super().__init__(*args, **kwargs)
+		super().__init__()
 		# Due initialisation 'feed' page content to parser
 		self.feed(self.read_site_content())
-		# Save links to file
-		self.write_to_file()
 
 
-    def _get_request_url(self, method_name, parameters):
-		""" Generate request URL
+	def is_valid(self, link, pattern=''):
+		""" Method to link validation
 
-			:param method_name: name of method in VK API
-			:param parameters: string with parameters for request
-    	"""
-		return ('https://api.vk.com/method/{method_name}?{parameters}'\
-			'&v={api_v}').format(
-			method_name=method_name, api_v=self.api_v, parameters=parameters)
+			**Note**
+			We should add link if:
+			1) Link is not in `links`
+			2) If this link isn't JS call
+			3) If it's not a label (don't have '#')
+
+			:param link: link for validation
+		"""
+		return link not in self.links or '#' not in link or 'javascript:' not in link
+
+
+	def handle_starttag(self, tag, attrs, pattern=''):
+		""" Some action when we meet hatml tag
+
+			:param tag: html tag
+			:param attrs: tag attributes
+		"""
+		# if we fount a link
+		if tag == 'a':
+			# find link attribute
+			for attr in attrs:
+				if attr[0] == 'href':
+					# check this link with validate() method
+					if self.is_valid(attr[0], pattern):
+						# save to links
+						self.links.append(attr[1])
+
+
+	def read_site_content(self):
+		""" Method to open page and call it's content
+		"""
+		return str(urlopen(self.site).read())
