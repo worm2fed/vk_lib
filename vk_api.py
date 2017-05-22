@@ -318,12 +318,7 @@ class VkApi():
 						'pattern': 'id[0-9]\d*' } ]
 					pa_u = Parser('https://vk.com/' + z, tags_u)
 
-					# Go though all valid users
-					for u in pa_u.result['a']:
-						tags_id = [ { 'tag': 'a', 'attr': 'href', \
-							'pattern': 'city' } ]
-						pa_id = Parser('https://vk.com/' + u, tags_id)
-						
-						ids += pa_id.result['a']
+					ids += pa_u.result['a'] 
+					
 
 		return ids
