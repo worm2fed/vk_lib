@@ -318,7 +318,6 @@ class VkApi():
 						'pattern': 'id[0-9]\d*' } ]
 					pa_u = Parser('https://vk.com/' + z, tags_u)
 
-					ids += pa_u.result['a'] 
-					
+					ids += [id.replace('id', '') for id in pa_u.result['a']]
 
 		return ids
