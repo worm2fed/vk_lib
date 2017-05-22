@@ -14,6 +14,7 @@ __docformat__ 	= 'reStructuredText'
 
 import requests
 
+from parser import *
 from tools import *
 
 
@@ -289,3 +290,40 @@ class VkApi():
 				current += len(tmp)
 
 		return result
+
+
+	def get_all_valid_ids(self):
+		""" This method parse vk.com/catalog to get all valid user's ids
+		"""
+		ids = []
+		tags_x = [ { 'tag': 'a', 'attr': 'href', \
+			'pattern': 'catalog\.php\?selection=[0-9]\d*' } ]
+		pa_x = Parser('https://vk.com/catalog.php', tags_x)
+
+		# Go though all links on /catalog.php?selection=X
+		for x in pa_x.result['a']:
+			tags_y = [ { 'tag': 'a', 'attr': 'href', \
+				'pattern': 'catalog\.php\?selection=[0-9]\d*-[0-9]\d*' } ]
+			pa_y = Parser('https://vk.com/' + x, tags_y)
+
+			# Go though all links on /catalog.php?selection=X-Y
+			for y in pa_y.result['a']:
+				tags_z = [ { 'tag': 'a', 'attr': 'href', \
+					'pattern': 'catalog\.php\?selection=[0-9]\d*-[0-9]\d*-[0-9]\d*' } ]
+				pa_z = Parser('https://vk.com/' + y, tags_z)
+				
+				# Go though all links on /catalog.php?selection=X-Y-Z
+				for z in pa_z.result['a']:
+					tags_u = [ { 'tag': 'a', 'attr': 'href', \
+						'pattern': 'id[0-9]\d*' } ]
+					pa_u = Parser('https://vk.com/' + z, tags_u)
+
+					# Go though all valid users
+					for u in pa_u.result['a']:
+						tags_id = [ { 'tag': 'a', 'attr': 'href', \
+							'pattern': 'city' } ]
+						pa_id = Parser('https://vk.com/' + u, tags_id)
+						
+						ids += pa_id.result['a']
+
+		return ids
