@@ -12,6 +12,7 @@ __version__ 	= '1.0'
 __author__ 		= 'Andrey Demidenko'
 __docformat__ 	= 'reStructuredText'
 
+import re
 
 from html.parser import HTMLParser
 from urllib.request import urlopen
@@ -32,50 +33,44 @@ class ParserException(Exception):
 class Parser(HTMLParser):
 	""" Class for parsing HTML pages
     """
-	def __init__(self, site):
+	def __init__(self, site, tags=[]):
 		""" Initialisation
 			
 			:param site: site name
-			:param *args:
-			:param **kwargs:
+			:param tags: list with dicts to search (tag, attr, pattern)
     	"""
-		self.links 	= []
-		self.site 	= site
+		self.tags 		= tags
+		self.site 		= site
+		self.result 	= dict()
+		
+		# Create a result dict with tag as key and list with value
+		for tag in self.tags:
+			self.result[tag['tag']] = []
+
 		# Call parent's __init__
 		super().__init__()
 		# Due initialisation 'feed' page content to parser
 		self.feed(self.read_site_content())
 
 
-	def is_valid(self, link, pattern=''):
-		""" Method to link validation
-
-			**Note**
-			We should add link if:
-			1) Link is not in `links`
-			2) If this link isn't JS call
-			3) If it's not a label (don't have '#')
-
-			:param link: link for validation
-		"""
-		return link not in self.links or '#' not in link or 'javascript:' not in link
-
-
-	def handle_starttag(self, tag, attrs, pattern=''):
+	def handle_starttag(self, current_tag, attrs):
 		""" Some action when we meet hatml tag
 
 			:param tag: html tag
 			:param attrs: tag attributes
 		"""
-		# if we fount a link
-		if tag == 'a':
-			# find link attribute
-			for attr in attrs:
-				if attr[0] == 'href':
-					# check this link with validate() method
-					if self.is_valid(attr[0], pattern):
-						# save to links
-						self.links.append(attr[1])
+		for tag in self.tags:
+			# if we found a link	
+			if tag['tag'] == current_tag:
+				# find tag attribute
+				for attr in attrs:
+					if tag['attr'] == attr[0]:
+						# check is in result and validate with pattern
+						pattern = re.compile(tag['pattern'])
+						if pattern.match(attr[1]) and \
+								attr[1] not in self.result[current_tag]:
+							# save to result
+							self.result[current_tag].append(attr[1])
 
 
 	def read_site_content(self):
